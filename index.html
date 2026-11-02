@@ -588,7 +588,20 @@ async function connect(){
     if (!repo.private){ $("loginErr").textContent = "That repo is public - this dashboard only connects to a private repo."; return; }
     store.set("jsd.repo",cfg.repo); store.set("jsd.branch",cfg.branch); store.set("jsd.token",cfg.token);
     showApp(); await loadAll();
-  }catch(e){ $("loginErr").textContent = e.status===401 ? "Token rejected by GitHub (invalid, deleted or only partly pasted). Generate a new one and paste it with the copy button." : e.status===404 ? "Repo not found for this token - check repository access." : (e.detail||e.message); }
+  }catch(e){
+    if (e.status===404){
+      let seen = [];
+      try{
+        const r = await fetch("https://api.github.com/user/repos?per_page=100&affiliation=owner", { headers:{ "Authorization":`Bearer ${cfg.token}`, "Accept":"application/vnd.github+json" } });
+        if (r.ok) seen = (await r.json()).map(x=>x.full_name);
+      }catch(_){}
+      const close = seen.find(n=>n.toLowerCase()===cfg.repo.toLowerCase());
+      $("loginErr").textContent = close ? `Use exactly: ${close}` :
+        seen.length ? `"${cfg.repo}" isn't visible to this token. It can see: ${seen.slice(0,8).join(", ")}. Edit the token's Repository access to include your private repo.` :
+        `"${cfg.repo}" isn't visible to this token, and it can't see any of your repos. Edit the token → Repository access → Only select repositories → pick your repo → Update.`;
+      return;
+    }
+    $("loginErr").textContent = e.status===401 ? "Token rejected by GitHub (invalid, deleted or only partly pasted). Generate a new one and paste it with the copy button." : e.status===404 ? "Repo not found for this token - check repository access." : (e.detail||e.message); }
   finally{ $("connectBtn").disabled = false; }
 }
 
