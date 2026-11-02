@@ -1,0 +1,597 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#f4f6f4" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0f1412" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Desk">
+<title>Desk</title>
+<style>
+:root{
+  --bg:#f4f6f4;--panel:#ffffff;--ink:#17201d;--muted:#5d6b66;--line:#e2e6e3;
+  --accent:#1f7a6b;--accent-ink:#ffffff;--accent-soft:#e3f1ee;
+  --warn:#a65f00;--warn-soft:#fdf1df;--bad:#b3261e;--bad-soft:#fbe7e5;--good:#2e7d32;--good-soft:#e5f3e6;
+  --chip:#eef1ef;--shadow:0 1px 2px rgba(0,0,0,.05);
+  --tap:44px;--r:14px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0f1412;--panel:#161d1a;--ink:#e6ece9;--muted:#93a39d;--line:#26302c;
+  --accent:#4fbfa8;--accent-ink:#06211b;--accent-soft:#17312b;
+  --warn:#f0b35a;--warn-soft:#33270f;--bad:#f2867d;--bad-soft:#3a1a17;--good:#7fcf84;--good-soft:#173019;
+  --chip:#1e2723;--shadow:none;}}
+:root[data-theme="dark"]{
+  --bg:#0f1412;--panel:#161d1a;--ink:#e6ece9;--muted:#93a39d;--line:#26302c;
+  --accent:#4fbfa8;--accent-ink:#06211b;--accent-soft:#17312b;
+  --warn:#f0b35a;--warn-soft:#33270f;--bad:#f2867d;--bad-soft:#3a1a17;--good:#7fcf84;--good-soft:#173019;
+  --chip:#1e2723;--shadow:none;}
+
+/* ---------- base = phone ---------- */
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;overscroll-behavior-y:contain}
+a{color:var(--accent)}
+.wrap{max-width:1100px;margin:0 auto;padding:0 12px calc(90px + env(safe-area-inset-bottom))}
+
+header{position:sticky;top:0;z-index:10;background:var(--bg);display:flex;align-items:center;justify-content:space-between;gap:8px;
+  padding:calc(10px + env(safe-area-inset-top)) 2px 8px}
+h1{font-size:19px;margin:0;letter-spacing:-.01em;min-width:0}
+h1 small{display:block;font-size:12px;font-weight:400;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hbtns{display:flex;gap:6px;flex-shrink:0}
+.icon{width:var(--tap);height:var(--tap);padding:0;display:grid;place-items:center;font-size:18px}
+.lbl{display:none}
+
+.btn{appearance:none;border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:12px;min-height:var(--tap);padding:0 14px;
+  font:inherit;font-size:15px;cursor:pointer;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;gap:6px;text-decoration:none;touch-action:manipulation}
+.btn:active{transform:scale(.98)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
+.btn.ghost{background:transparent}
+.btn:disabled{opacity:.5}
+
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:4px 0 10px}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:8px 6px;text-align:center;box-shadow:var(--shadow)}
+.stat b{display:block;font-size:20px;line-height:1.1}
+.stat span{font-size:11px;color:var(--muted);display:block;line-height:1.2;margin-top:2px}
+
+.tabs{position:sticky;top:calc(58px + env(safe-area-inset-top));z-index:9;background:var(--bg);display:grid;grid-template-columns:repeat(3,1fr);gap:4px;
+  padding:4px;border:1px solid var(--line);border-radius:12px;margin-bottom:10px}
+.tab{background:none;border:0;border-radius:9px;min-height:40px;padding:0 4px;font:inherit;font-size:14px;color:var(--muted);cursor:pointer;white-space:nowrap}
+.tab[aria-selected="true"]{background:var(--panel);color:var(--ink);font-weight:600;box-shadow:var(--shadow)}
+.tab .n{display:inline-block;min-width:18px;padding:0 5px;margin-left:4px;border-radius:9px;background:var(--chip);font-size:11px;text-align:center}
+
+.toolbar{display:grid;grid-template-columns:1fr auto;gap:6px;margin-bottom:10px}
+input,select,textarea{font:inherit;font-size:16px;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:12px;min-height:var(--tap);padding:0 12px;width:100%}
+select{padding-right:8px}
+.toolbar select{width:auto;max-width:42vw}
+
+.list{display:grid;gap:10px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:14px;box-shadow:var(--shadow);
+  display:grid;grid-template-columns:46px 1fr;gap:12px;align-items:start}
+.score{width:46px;height:46px;border-radius:12px;display:grid;place-items:center;font-weight:700;font-size:17px;background:var(--chip)}
+.score.s75{background:var(--good-soft);color:var(--good)}
+.score.s60{background:var(--accent-soft);color:var(--accent)}
+.score.s45{background:var(--warn-soft);color:var(--warn)}
+.title{font-weight:600;font-size:16px;margin:0;line-height:1.3}
+.company{color:var(--muted);font-size:14px;margin:2px 0 8px}
+.meta{display:flex;flex-wrap:wrap;gap:6px;font-size:12.5px}
+.chip{background:var(--chip);border-radius:999px;padding:3px 9px;color:var(--muted)}
+.chip.warn{background:var(--warn-soft);color:var(--warn)}
+.chip.bad{background:var(--bad-soft);color:var(--bad)}
+.chip.good{background:var(--good-soft);color:var(--good)}
+.chip.acc{background:var(--accent-soft);color:var(--accent)}
+.bul{margin:10px 0 0;padding:0;list-style:none;font-size:14px;color:var(--muted)}
+.bul li{margin:3px 0}
+.notes{font-size:13.5px;color:var(--muted);margin-top:8px;white-space:pre-wrap;word-break:break-word}
+
+/* actions: full width under the card on phones */
+.actions{grid-column:1/-1;display:grid;gap:8px}
+.actions > .btn{width:100%}
+.actions .row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.actions .row .btn{width:100%}
+.actions select{width:100%}
+.hint{font-size:13px;color:var(--muted)}
+
+.empty{padding:36px 16px;text-align:center;color:var(--muted);background:var(--panel);border:1px dashed var(--line);border-radius:var(--r)}
+
+.login{margin:16px 0;background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:18px}
+.login h2{margin:0 0 6px;font-size:18px}
+.login p{color:var(--muted);font-size:14px;margin:6px 0 12px}
+.login label{display:block;font-size:13px;font-weight:600;margin:12px 0 4px}
+.login ol{font-size:14px;color:var(--muted);padding-left:18px;margin:0}
+.login .btn{width:100%;margin-top:16px}
+.err{color:var(--bad);font-size:14px;margin-top:10px;min-height:1em}
+
+/* dialogs = bottom sheets on phones */
+dialog{border:0;border-radius:20px 20px 0 0;background:var(--panel);color:var(--ink);padding:18px 16px calc(16px + env(safe-area-inset-bottom));
+  width:100%;max-width:100%;margin:auto 0 0;max-height:92vh;overflow:auto}
+dialog::backdrop{background:rgba(0,0,0,.4)}
+dialog h3{margin:0 0 4px;font-size:18px}
+dialog label{display:block;font-size:13px;font-weight:600;margin:12px 0 4px}
+dialog .foot{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:18px}
+dialog .grab{width:40px;height:4px;border-radius:2px;background:var(--line);margin:-6px auto 12px}
+
+.fab{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom));z-index:11;width:56px;height:56px;border-radius:18px;
+  font-size:26px;box-shadow:0 6px 20px rgba(0,0,0,.18)}
+.toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--ink);color:var(--bg);
+  padding:10px 16px;border-radius:999px;font-size:14px;opacity:0;transition:opacity .2s;pointer-events:none;max-width:calc(100vw - 32px);z-index:20}
+.toast.on{opacity:1}
+
+/* ---------- larger screens ---------- */
+@media (min-width:720px){
+  .wrap{padding:0 20px 60px}
+  header{padding-top:18px}
+  h1{font-size:21px}
+  .lbl{display:inline}
+  .icon{width:auto;padding:0 14px;font-size:15px}
+  .stats{gap:10px}
+  .stat{text-align:left;padding:12px 14px}
+  .stat b{font-size:24px}
+  .stat span{font-size:13px}
+  .tabs{display:flex;width:max-content;top:72px}
+  .tab{padding:0 14px}
+  .toolbar select{max-width:none}
+  .card{grid-template-columns:56px 1fr 220px;gap:16px;padding:16px}
+  .score{width:56px;height:56px;font-size:19px}
+  .actions{grid-column:auto}
+  dialog{border-radius:16px;width:480px;margin:auto;padding:22px}
+  dialog .grab{display:none}
+  .login{max-width:520px;margin:40px auto;padding:22px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Desk<small id="sub">Private dashboard · data stays in your GitHub repo</small></h1>
+    <div class="hbtns">
+      <button class="btn icon" id="refreshBtn" hidden aria-label="Refresh">↻<span class="lbl">Refresh</span></button>
+      <button class="btn icon" id="signOutBtn" hidden aria-label="Sign out">⏻<span class="lbl">Sign out</span></button>
+    </div>
+  </header>
+
+  <section id="loginView" class="login" hidden>
+    <h2>Connect your private repo</h2>
+    <p>This page contains no data. It reads and updates your tracker in your private GitHub repo using a token stored only in this browser.</p>
+    <ol>
+      <li>Open <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">GitHub → Fine-grained token</a>.</li>
+      <li>Repository access: <b>Only select repositories</b> → your private repo.</li>
+      <li>Permissions → Repository → <b>Contents: Read and write</b>. Generate and paste below.</li>
+    </ol>
+    <label for="repoIn">Repository</label>
+    <input id="repoIn" type="text" placeholder="owner/private-repo" autocomplete="off">
+    <label for="branchIn">Branch</label>
+    <input id="branchIn" type="text" value="main" autocomplete="off">
+    <label for="tokenIn">Token</label>
+    <input id="tokenIn" type="password" placeholder="github_pat_…" autocomplete="off">
+    <button class="btn primary" id="connectBtn">Connect</button>
+    <div class="err" id="loginErr"></div>
+  </section>
+
+  <section id="appView" hidden>
+    <div class="stats">
+      <div class="stat"><b id="stReady">–</b><span>To apply</span></div>
+      <div class="stat"><b id="stApplied">–</b><span>Applied</span></div>
+      <div class="stat"><b id="stInterview">–</b><span>Interview</span></div>
+      <div class="stat"><b id="stOffer">–</b><span>Offers</span></div>
+    </div>
+    <div class="tabs" role="tablist">
+      <button class="tab" role="tab" data-tab="ready" aria-selected="true">To apply<span class="n" id="nReady">0</span></button>
+      <button class="tab" role="tab" data-tab="apps" aria-selected="false">Applied<span class="n" id="nApps">0</span></button>
+      <button class="tab" role="tab" data-tab="pipeline" aria-selected="false">Pipeline<span class="n" id="nPipe">0</span></button>
+    </div>
+    <div class="toolbar">
+      <input type="search" id="q" placeholder="Search">
+      <select id="sortSel" aria-label="Sort">
+        <option value="fit">Best fit</option>
+        <option value="date">Newest</option>
+        <option value="deadline">Deadline</option>
+      </select>
+    </div>
+    <div id="list" class="list"></div>
+  </section>
+</div>
+
+<dialog id="applyDlg">
+  <form method="dialog" id="applyForm">
+    <div class="grab"></div>
+    <h3 id="applyTitle">Mark as applied</h3>
+    <div class="hint" id="applySub"></div>
+    <label for="apDate">Date applied</label>
+    <input type="text" id="apDate" placeholder="YYYY-MM-DD">
+    <label for="apCv">CV used</label>
+    <select id="apCv"></select>
+    <label for="apChannel">Applied via</label>
+    <select id="apChannel">
+      <option value="portal">Job portal (LinkedIn / Naukri …)</option>
+      <option value="online">Company careers site</option>
+      <option value="referral">Referral</option>
+      <option value="recruiter">Recruiter</option>
+      <option value="email">Email</option>
+    </select>
+    <label for="apNote">Note (optional)</label>
+    <input type="text" id="apNote" placeholder="e.g. referred by …">
+    <div class="foot"><button class="btn" value="cancel" type="submit" formnovalidate>Cancel</button><button class="btn primary" value="ok" id="apOk">Save</button></div>
+  </form>
+</dialog>
+
+<dialog id="addDlg">
+  <form method="dialog" id="addForm">
+    <div class="grab"></div>
+    <h3>Log an application</h3>
+    <div class="hint">For a job you applied to outside the daily run.</div>
+    <label for="adCompany">Company</label><input type="text" id="adCompany" required>
+    <label for="adRole">Role</label><input type="text" id="adRole" required>
+    <label for="adUrl">Posting URL</label><input type="url" id="adUrl" placeholder="https://…">
+    <label for="adCv">CV used</label><select id="adCv"></select>
+    <label for="adDate">Date applied</label><input type="text" id="adDate" placeholder="YYYY-MM-DD">
+    <div class="foot"><button class="btn" value="cancel" type="submit" formnovalidate>Cancel</button><button class="btn primary" value="ok">Save</button></div>
+  </form>
+</dialog>
+
+<button class="btn primary fab" id="addBtn" hidden aria-label="Log an application">+</button>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+"use strict";
+const TRACKER = "job_search_tracker.csv";
+const SEEN = "job_scraper/seen_jobs.json";
+const HEADER = ["date","company","sector","role","role_type","channel","status","contact_person","fit_rating","notes","cv_file","cover_letter_file","source","deadline"];
+const STATUSES = ["drafted","applied","interview","offer","hired","rejected","no_response","offer_declined","withdrawn"];
+const FINAL = new Set(["hired","rejected","no_response","no response","offer_declined","offer declined","withdrawn"]);
+
+const store = {
+  get(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } },
+  set(k,v){ try{ localStorage.setItem(k,v); }catch(e){} },
+  del(k){ try{ localStorage.removeItem(k); }catch(e){} }
+};
+let cfg = { repo: store.get("jsd.repo") || "", branch: store.get("jsd.branch") || "main", token: store.get("jsd.token") || "" };
+let state = { rows: [], header: HEADER.slice(), sha: null, seen: {}, cvs: [], tab: store.get("jsd.tab") || "ready" };
+
+const $ = id => document.getElementById(id);
+const today = () => { const d = new Date(); const z = n => String(n).padStart(2,"0"); return `${d.getFullYear()}-${z(d.getMonth()+1)}-${z(d.getDate())}`; };
+const norm = s => String(s||"").trim().toLowerCase().replace(/\s+/g," ");
+const safeUrl = u => /^https?:\/\//i.test(String(u||"").trim()) ? String(u).trim() : null;
+function toast(msg){ const t=$("toast"); t.textContent=msg; t.classList.add("on"); clearTimeout(toast._t); toast._t=setTimeout(()=>t.classList.remove("on"),2600); }
+function el(tag, attrs, ...kids){
+  const n = document.createElement(tag);
+  for (const [k,v] of Object.entries(attrs||{})){
+    if (v==null || v===false) continue;
+    if (k==="class") n.className=v; else if (k.startsWith("on")) n.addEventListener(k.slice(2),v); else n.setAttribute(k,v);
+  }
+  for (const c of kids.flat()){ if (c==null||c===false) continue; n.append(c instanceof Node ? c : document.createTextNode(String(c))); }
+  return n;
+}
+
+/* ---------- CSV (RFC 4180) ---------- */
+function parseCSV(text){
+  const rows=[]; let row=[], f="", q=false;
+  for (let i=0;i<text.length;i++){
+    const c=text[i];
+    if (q){ if (c==='"'){ if (text[i+1]==='"'){ f+='"'; i++; } else q=false; } else f+=c; }
+    else if (c==='"') q=true;
+    else if (c===','){ row.push(f); f=""; }
+    else if (c==='\n'||c==='\r'){ if (c==='\r'&&text[i+1]==='\n') i++; row.push(f); rows.push(row); row=[]; f=""; }
+    else f+=c;
+  }
+  if (f!==""||row.length){ row.push(f); rows.push(row); }
+  return rows.filter(r=>!(r.length===1&&r[0]===""));
+}
+const csvCell = v => { v = v==null ? "" : String(v); return /[",\r\n]/.test(v) ? '"'+v.replace(/"/g,'""')+'"' : v; };
+function toCSV(header, rows){ return [header, ...rows.map(r=>header.map(h=>r[h]??""))].map(r=>r.map(csvCell).join(",")).join("\n")+"\n"; }
+
+/* ---------- GitHub API ---------- */
+const b64ToText = b => new TextDecoder().decode(Uint8Array.from(atob(b.replace(/\n/g,"")), c=>c.charCodeAt(0)));
+const textToB64 = t => { const bytes=new TextEncoder().encode(t); let s=""; for (let i=0;i<bytes.length;i+=0x8000) s+=String.fromCharCode.apply(null, bytes.subarray(i,i+0x8000)); return btoa(s); };
+async function gh(path, opts={}){
+  const res = await fetch(`https://api.github.com/repos/${cfg.repo}${path ? "/"+path : ""}`, {
+    ...opts, headers: { "Authorization": `Bearer ${cfg.token}`, "Accept": opts.accept || "application/vnd.github+json", "X-GitHub-Api-Version": "2022-11-28", ...(opts.body?{"Content-Type":"application/json"}:{}) }
+  });
+  if (!res.ok){ const e = new Error(`GitHub ${res.status}`); e.status=res.status; try{ e.detail=(await res.json()).message; }catch(_){} throw e; }
+  return res;
+}
+const enc = p => p.split("/").map(encodeURIComponent).join("/");
+async function getFile(path){
+  try{ const j = await (await gh(`contents/${enc(path)}?ref=${encodeURIComponent(cfg.branch)}`)).json(); return { text: j.content ? b64ToText(j.content) : null, sha: j.sha, large: !j.content }; }
+  catch(e){ if (e.status===404) return { text:null, sha:null }; throw e; }
+}
+async function getRaw(path){
+  try{ return await (await gh(`contents/${enc(path)}?ref=${encodeURIComponent(cfg.branch)}`, {accept:"application/vnd.github.raw+json"})).text(); }
+  catch(e){ if (e.status===404) return null; throw e; }
+}
+
+/* ---------- load ---------- */
+async function loadAll(){
+  $("sub").textContent = `Loading ${cfg.repo}…`;
+  const [tracker, seenText, cvDir] = await Promise.all([
+    getFile(TRACKER),
+    getRaw(SEEN),
+    gh(`contents/cv?ref=${encodeURIComponent(cfg.branch)}`).then(r=>r.json()).catch(()=>[])
+  ]);
+  let text = tracker.text;
+  if (tracker.large) text = await getRaw(TRACKER);
+  state.sha = tracker.sha;
+  if (text){
+    const rows = parseCSV(text);
+    state.header = rows.length ? rows[0] : HEADER.slice();
+    for (const h of HEADER) if (!state.header.includes(h)) state.header.push(h);
+    state.rows = rows.slice(1).map(r => Object.fromEntries(state.header.map((h,i)=>[h, r[i] ?? ""])));
+  } else { state.header = HEADER.slice(); state.rows = []; }
+  try{ state.seen = seenText ? (JSON.parse(seenText).seen || {}) : {}; }catch(_){ state.seen = {}; }
+  state.cvs = Array.isArray(cvDir) ? cvDir.filter(f=>/^main_.+\.pdf$/i.test(f.name) && f.name!=="main_example.pdf").map(f=>f.path).sort() : [];
+  $("sub").textContent = `${cfg.repo} · updated ${new Date().toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"})}`;
+  render();
+}
+
+/* ---------- save (optimistic concurrency on the file sha) ---------- */
+async function saveTracker(mutate, message){
+  for (let attempt=0; attempt<3; attempt++){
+    const fresh = await getFile(TRACKER);
+    let text = fresh.text; if (fresh.large) text = await getRaw(TRACKER);
+    let header = HEADER.slice(), rows = [];
+    if (text){ const p=parseCSV(text); header=p[0]; for (const h of HEADER) if(!header.includes(h)) header.push(h); rows=p.slice(1).map(r=>Object.fromEntries(header.map((h,i)=>[h,r[i]??""]))); }
+    if (mutate(rows) === false) throw new Error("That row changed on GitHub - refresh and try again.");
+    const body = { message: `${message} [skip ci]`, content: textToB64(toCSV(header, rows)), branch: cfg.branch };
+    if (fresh.sha) body.sha = fresh.sha;
+    try{ await gh(`contents/${enc(TRACKER)}`, { method:"PUT", body: JSON.stringify(body) }); return; }
+    catch(e){ if (e.status!==409 && e.status!==422) throw e; }
+  }
+  throw new Error("Tracker kept changing on GitHub - refresh and retry.");
+}
+const rowKey = r => `${norm(r.company)}|${norm(r.role)}|${r.date}|${r.cv_file}`;
+
+/* ---------- PDFs ---------- */
+const pdfOf = p => p ? p.replace(/\.(tex|typ)$/i, ".pdf") : "";
+async function openPdf(path){
+  const w = window.open("", "_blank");
+  try{
+    const res = await gh(`contents/${enc(path)}?ref=${encodeURIComponent(cfg.branch)}`, {accept:"application/vnd.github.raw+json"});
+    const url = URL.createObjectURL(new Blob([await res.arrayBuffer()], {type:"application/pdf"}));
+    if (w) w.location.href = url; else location.href = url;
+    setTimeout(()=>URL.revokeObjectURL(url), 120000);
+  }catch(e){ if (w) w.close(); toast(e.status===404 ? "PDF not found in the repo" : `Could not open PDF (${e.message})`); }
+}
+
+/* ---------- views ---------- */
+function scoreBox(n){
+  const v = parseInt(n,10);
+  const cls = isNaN(v) ? "" : v>=75 ? "s75" : v>=60 ? "s60" : v>=45 ? "s45" : "";
+  return el("div",{class:`score ${cls}`, title:"Fit score"}, isNaN(v) ? "–" : v);
+}
+function deadlineChip(d){
+  if (!d) return null;
+  const days = Math.round((new Date(d) - new Date(today()))/86400000);
+  if (isNaN(days)) return el("span",{class:"chip"},`deadline ${d}`);
+  if (days < 0) return el("span",{class:"chip bad"},`closed ${d}`);
+  if (days <= 7) return el("span",{class:"chip warn"},`🔥 closes ${d}`);
+  return el("span",{class:"chip"},`deadline ${d}`);
+}
+const statusChip = s => el("span",{class:`chip ${ s==="offer"||s==="hired" ? "good" : s==="interview" ? "acc" : FINAL.has(s) ? "bad" : s==="applied" ? "acc" : "" }`}, (s||"").replace(/_/g," "));
+const appliedDate = r => { const m = String(r.notes||"").match(/applied (\d{4}-\d{2}-\d{2})/); return m ? m[1] : r.date; };
+const cleanNotes = n => String(n||"").split(";").map(x=>x.trim()).filter(x=>x && !/^applied \d{4}-\d{2}-\d{2}$/.test(x) && x!=="auto-drafted by daily run").join("; ");
+const cvName = p => (p||"").split("/").pop().replace(/^main_/,"").replace(/\.(pdf|tex)$/,"").replace(/[_-]+/g," ");
+
+function matches(texts){ const q = norm($("q").value); return !q || texts.some(t=>norm(t).includes(q)); }
+function sortRows(rows, getFit, getDate, getDeadline){
+  const s = $("sortSel").value;
+  return rows.slice().sort((a,b)=>
+    s==="date" ? String(getDate(b)).localeCompare(String(getDate(a))) :
+    s==="deadline" ? String(getDeadline(a)||"9999").localeCompare(String(getDeadline(b)||"9999")) :
+    (parseFloat(getFit(b))||0) - (parseFloat(getFit(a))||0));
+}
+
+function readyCard(r){
+  const link = safeUrl(r.source);
+  return el("article",{class:"card"},
+    scoreBox(r.fit_rating),
+    el("div",{},
+      el("p",{class:"title"}, r.role || "(role)"),
+      el("p",{class:"company"}, r.company, r.sector ? ` · ${r.sector}` : ""),
+      el("div",{class:"meta"},
+        el("span",{class:"chip"},`drafted ${r.date}`),
+        r.role_type && el("span",{class:"chip"}, r.role_type),
+        deadlineChip(r.deadline)),
+      r.notes && r.notes!=="auto-drafted by daily run" && el("div",{class:"notes"}, r.notes)),
+    el("div",{class:"actions"},
+      link ? el("a",{class:"btn primary", href:link, target:"_blank", rel:"noopener noreferrer"},"Open posting ↗") : el("span",{class:"hint"},"no posting link"),
+      el("div",{class:"row"},
+        r.cv_file && el("button",{class:"btn", onclick:()=>openPdf(pdfOf(r.cv_file))},"CV"),
+        r.cover_letter_file && el("button",{class:"btn", onclick:()=>openPdf(pdfOf(r.cover_letter_file))},"Cover letter")),
+      el("div",{class:"row"},
+        el("button",{class:"btn", onclick:()=>openApply(r)},"✓ Applied"),
+        el("button",{class:"btn", title:"Not applying", onclick:()=>setStatus(r,"withdrawn","skipped")},"Skip"))));
+}
+
+function appCard(r){
+  const link = safeUrl(r.source);
+  const sel = el("select",{"aria-label":"Status", onchange:e=>setStatus(r, e.target.value)},
+    STATUSES.filter(s=>s!=="drafted").map(s=>{ const o=el("option",{value:s}, s.replace(/_/g," ")); if (norm(r.status).replace(/ /g,"_")===s) o.selected=true; return o; }));
+  return el("article",{class:"card"},
+    scoreBox(r.fit_rating),
+    el("div",{},
+      el("p",{class:"title"}, r.role || "(role)"),
+      el("p",{class:"company"}, r.company, r.channel ? ` · via ${r.channel}` : ""),
+      el("div",{class:"meta"},
+        statusChip(norm(r.status).replace(/ /g,"_")),
+        el("span",{class:"chip"},appliedDate(r)),
+        r.cv_file && el("span",{class:"chip acc", title:r.cv_file},`CV: ${cvName(r.cv_file)}`)),
+      cleanNotes(r.notes) && el("div",{class:"notes"}, cleanNotes(r.notes))),
+    el("div",{class:"actions"},
+      sel,
+      el("div",{class:"row"},
+        r.cv_file && el("button",{class:"btn", onclick:()=>openPdf(pdfOf(r.cv_file))},"CV sent"),
+        r.cover_letter_file && el("button",{class:"btn", onclick:()=>openPdf(pdfOf(r.cover_letter_file))},"Letter")),
+      el("div",{class:"row"},
+        link && el("a",{class:"btn", href:link, target:"_blank", rel:"noopener noreferrer"},"Posting ↗"),
+        el("button",{class:"btn", onclick:()=>addNote(r)},"Add note"))));
+}
+
+function pipeCard(e){
+  const link = safeUrl(e.url);
+  const strengths = Array.isArray(e.strengths) ? e.strengths.slice(0,3) : [];
+  const gaps = Array.isArray(e.gaps) ? e.gaps.slice(0,2) : [];
+  return el("article",{class:"card"},
+    scoreBox(e.rank_score),
+    el("div",{},
+      el("p",{class:"title"}, e.title || "(title)"),
+      el("p",{class:"company"}, e.company || "", e.location && !/^(PASS|FAIL|FLAG)$/.test(e.location) ? ` · ${e.location}` : ""),
+      el("div",{class:"meta"},
+        e.rank_verdict && el("span",{class:"chip"}, e.rank_verdict),
+        e.rank_date && el("span",{class:"chip"},`scored ${e.rank_date}`),
+        (e.location_verdict==="FLAG"||e.language_gate==="FLAG") && el("span",{class:"chip warn"},"⚠ check location/language"),
+        e.guard && e.guard!=="clean" && el("span",{class:"chip warn"},"⚠ posting flagged"),
+        deadlineChip(e.deadline)),
+      (strengths.length||gaps.length) && el("ul",{class:"bul"},
+        strengths.map(s=>el("li",{},"✓ ", s)), gaps.map(g=>el("li",{},"✗ ", g)))),
+    el("div",{class:"actions"},
+      link ? el("a",{class:"btn", href:link, target:"_blank", rel:"noopener noreferrer"},"Posting ↗") : null,
+      el("span",{class:"hint"}, (e.rank_score||0) >= 60 ? "Queued for drafting" : "Below threshold")));
+}
+
+function render(){
+  const rows = state.rows;
+  const st = r => norm(r.status).replace(/ /g,"_");
+  const ready = rows.filter(r=>st(r)==="drafted");
+  const apps = rows.filter(r=>st(r) && st(r)!=="drafted" && !(st(r)==="withdrawn" && /skipped/.test(r.notes||"")));
+  const tracked = new Set(rows.map(r=>`${norm(r.company)}|${norm(r.role)}`));
+  const pipe = Object.values(state.seen).filter(e=>e && e.status==="ranked" && !tracked.has(`${norm(e.company)}|${norm(e.title)}`));
+
+  $("stReady").textContent = ready.length;
+  $("stApplied").textContent = apps.length;
+  $("stInterview").textContent = apps.filter(r=>st(r)==="interview").length;
+  $("stOffer").textContent = apps.filter(r=>["offer","hired"].includes(st(r))).length;
+  $("nReady").textContent = ready.length; $("nApps").textContent = apps.length; $("nPipe").textContent = pipe.length;
+  document.querySelectorAll(".tab").forEach(t=>t.setAttribute("aria-selected", String(t.dataset.tab===state.tab)));
+
+  const list = $("list"); list.replaceChildren();
+  let items = [];
+  if (state.tab==="ready"){
+    items = sortRows(ready.filter(r=>matches([r.company,r.role,r.sector,r.role_type])), r=>r.fit_rating, r=>r.date, r=>r.deadline).map(readyCard);
+    if (!items.length) list.append(el("div",{class:"empty"}, ready.length ? "No matches for this filter." : "Nothing waiting. New drafts arrive after the 09:00 IST run."));
+  } else if (state.tab==="apps"){
+    items = sortRows(apps.filter(r=>matches([r.company,r.role,r.status,r.notes,r.cv_file])), r=>r.fit_rating, appliedDate, r=>r.deadline).map(appCard);
+    if (!items.length) list.append(el("div",{class:"empty"}, apps.length ? "No matches for this filter." : "No applications yet. Use “Mark applied” on a draft, or “+ Log application”."));
+  } else {
+    items = sortRows(pipe.filter(e=>matches([e.company,e.title,e.location])), e=>e.rank_score, e=>e.rank_date, e=>e.deadline).map(pipeCard);
+    if (!items.length) list.append(el("div",{class:"empty"}, "No scored jobs waiting."));
+  }
+  list.append(...items);
+}
+
+/* ---------- actions ---------- */
+function fillCvSelect(sel, current){
+  sel.replaceChildren();
+  const opts = new Set(state.cvs); if (current) opts.add(pdfOf(current));
+  if (!opts.size) sel.append(el("option",{value:""},"(no CV found)"));
+  [...opts].sort().forEach(p=>{ const o=el("option",{value:p}, cvName(p)); if (current && p===pdfOf(current)) o.selected=true; sel.append(o); });
+  sel.append(el("option",{value:"cv/main_example.tex"},"Master CV"));
+}
+
+let applyTarget = null;
+function openApply(r){
+  applyTarget = r;
+  $("applySub").textContent = `${r.role} · ${r.company}`;
+  $("apDate").value = today(); $("apNote").value = "";
+  $("apChannel").value = r.channel || (/linkedin|naukri|freehire|iimjobs|instahyre/i.test(r.source||"") ? "portal" : "online");
+  fillCvSelect($("apCv"), r.cv_file);
+  $("applyDlg").showModal();
+}
+$("applyDlg").addEventListener("close", async ()=>{
+  if ($("applyDlg").returnValue!=="ok" || !applyTarget) return;
+  const r = applyTarget, key = rowKey(r);
+  const date = /^\d{4}-\d{2}-\d{2}$/.test($("apDate").value.trim()) ? $("apDate").value.trim() : today();
+  const cvPdf = $("apCv").value, cvTex = cvPdf.replace(/\.pdf$/i, ".tex");
+  const note = $("apNote").value.trim(), channel = $("apChannel").value;
+  toast("Saving…");
+  try{
+    await saveTracker(rows=>{
+      const row = rows.find(x=>rowKey(x)===key); if (!row) return false;
+      row.status = "applied"; row.date = date; row.channel = channel;
+      if (cvTex) row.cv_file = cvTex;
+      row.notes = [row.notes==="auto-drafted by daily run" ? "" : row.notes, `applied ${date}`, note].filter(Boolean).join("; ");
+    }, `Applied: ${r.company} - ${r.role}`);
+    toast("Marked applied ✓"); await loadAll();
+  }catch(e){ toast(e.detail || e.message); }
+});
+
+async function setStatus(r, status, note){
+  const key = rowKey(r);
+  toast("Saving…");
+  try{
+    await saveTracker(rows=>{
+      const row = rows.find(x=>rowKey(x)===key); if (!row) return false;
+      row.status = status;
+      const tag = note || `${status.replace(/_/g," ")} ${today()}`;
+      row.notes = [row.notes==="auto-drafted by daily run" ? "" : row.notes, tag].filter(Boolean).join("; ");
+    }, `${status}: ${r.company} - ${r.role}`);
+    toast("Updated ✓"); await loadAll();
+  }catch(e){ toast(e.detail || e.message); render(); }
+}
+
+async function addNote(r){
+  const text = prompt(`Note for ${r.company} - ${r.role}`); // simple native prompt; no data leaves GitHub
+  if (!text || !text.trim()) return;
+  const key = rowKey(r);
+  try{
+    await saveTracker(rows=>{ const row = rows.find(x=>rowKey(x)===key); if (!row) return false; row.notes = [row.notes, `${today()}: ${text.trim().replace(/[\r\n]+/g," ")}`].filter(Boolean).join("; "); }, `Note: ${r.company}`);
+    toast("Note saved ✓"); await loadAll();
+  }catch(e){ toast(e.detail || e.message); }
+}
+
+$("addBtn").addEventListener("click", ()=>{ $("addForm").reset(); $("adDate").value = today(); fillCvSelect($("adCv"), ""); $("addDlg").showModal(); });
+$("addDlg").addEventListener("close", async ()=>{
+  if ($("addDlg").returnValue!=="ok") return;
+  const company=$("adCompany").value.trim(), role=$("adRole").value.trim(); if (!company||!role) return;
+  const date = /^\d{4}-\d{2}-\d{2}$/.test($("adDate").value.trim()) ? $("adDate").value.trim() : today();
+  const url = safeUrl($("adUrl").value) || "";
+  const cvTex = ($("adCv").value||"").replace(/\.pdf$/i,".tex");
+  toast("Saving…");
+  try{
+    await saveTracker(rows=>{ rows.push({ date, company, role, status:"applied", channel: /linkedin|naukri|iimjobs|instahyre/i.test(url) ? "portal" : "online", notes:`applied ${date}; logged manually`, cv_file: cvTex, source: url }); }, `Applied (manual): ${company} - ${role}`);
+    toast("Application logged ✓"); state.tab="apps"; await loadAll();
+  }catch(e){ toast(e.detail || e.message); }
+});
+
+/* ---------- wiring ---------- */
+document.querySelectorAll(".tab").forEach(t=>t.addEventListener("click",()=>{ state.tab=t.dataset.tab; store.set("jsd.tab",state.tab); render(); }));
+$("q").addEventListener("input", render);
+$("sortSel").addEventListener("change", render);
+$("refreshBtn").addEventListener("click", ()=>loadAll().then(()=>toast("Refreshed")).catch(e=>toast(e.message)));
+$("signOutBtn").addEventListener("click", ()=>{ store.del("jsd.token"); cfg.token=""; showLogin(); });
+$("connectBtn").addEventListener("click", connect);
+$("tokenIn").addEventListener("keydown", e=>{ if (e.key==="Enter") connect(); });
+
+function showLogin(msg){
+  $("appView").hidden = true; $("loginView").hidden = false;
+  ["refreshBtn","addBtn","signOutBtn"].forEach(id=>$(id).hidden=true);
+  $("repoIn").value = cfg.repo; $("branchIn").value = cfg.branch; $("tokenIn").value = "";
+  $("loginErr").textContent = msg || "";
+  $("sub").textContent = "Private dashboard · data stays in your GitHub repo";
+}
+function showApp(){
+  $("loginView").hidden = true; $("appView").hidden = false;
+  ["refreshBtn","addBtn","signOutBtn"].forEach(id=>$(id).hidden=false);
+}
+async function connect(){
+  cfg.repo = $("repoIn").value.trim().replace(/^https:\/\/github\.com\//,"").replace(/\/$/,"");
+  cfg.branch = $("branchIn").value.trim() || "main";
+  cfg.token = $("tokenIn").value.trim();
+  if (!/^[\w.-]+\/[\w.-]+$/.test(cfg.repo) || !cfg.token){ $("loginErr").textContent = "Enter owner/repo and a token."; return; }
+  $("connectBtn").disabled = true; $("loginErr").textContent = "";
+  try{
+    const repo = await (await gh("")).json();
+    if (!repo.private){ $("loginErr").textContent = "That repo is public - this dashboard only connects to a private repo."; return; }
+    store.set("jsd.repo",cfg.repo); store.set("jsd.branch",cfg.branch); store.set("jsd.token",cfg.token);
+    showApp(); await loadAll();
+  }catch(e){ $("loginErr").textContent = e.status===401 ? "Token rejected." : e.status===404 ? "Repo not found for this token - check repository access." : (e.detail||e.message); }
+  finally{ $("connectBtn").disabled = false; }
+}
+
+if (cfg.token){ showApp(); loadAll().catch(e=>showLogin(e.status===401 ? "Saved token expired - paste a new one." : (e.detail||e.message))); }
+else showLogin();
+</script>
+</body>
+</html>
