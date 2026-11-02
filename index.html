@@ -32,6 +32,7 @@
 
 /* ---------- base = phone ---------- */
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+[hidden]{display:none!important}
 html{-webkit-text-size-adjust:100%}
 body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;overscroll-behavior-y:contain}
 a{color:var(--accent)}
@@ -166,7 +167,7 @@ dialog .grab{width:40px;height:4px;border-radius:2px;background:var(--line);marg
     <label for="branchIn">Branch</label>
     <input id="branchIn" type="text" value="main" autocomplete="off">
     <label for="tokenIn">Token</label>
-    <input id="tokenIn" type="password" placeholder="github_pat_…" autocomplete="off">
+    <input id="tokenIn" type="text" name="gh-fine-grained" placeholder="github_pat_…" autocomplete="off" autocapitalize="off" spellcheck="false" data-1p-ignore data-lpignore="true" style="-webkit-text-security:disc">
     <button class="btn primary" id="connectBtn">Connect</button>
     <div class="err" id="loginErr"></div>
   </section>
@@ -578,7 +579,8 @@ function showApp(){
 async function connect(){
   cfg.repo = $("repoIn").value.trim().replace(/^https:\/\/github\.com\//,"").replace(/\/$/,"");
   cfg.branch = $("branchIn").value.trim() || "main";
-  cfg.token = $("tokenIn").value.trim();
+  cfg.token = $("tokenIn").value.replace(/\s+/g,"");
+  if (cfg.token && !/^(github_pat_|ghp_)/.test(cfg.token)){ $("loginErr").textContent = "That doesn't look like a GitHub token (should start with github_pat_). Your browser may have autofilled a password."; return; }
   if (!/^[\w.-]+\/[\w.-]+$/.test(cfg.repo) || !cfg.token){ $("loginErr").textContent = "Enter owner/repo and a token."; return; }
   $("connectBtn").disabled = true; $("loginErr").textContent = "";
   try{
@@ -586,7 +588,7 @@ async function connect(){
     if (!repo.private){ $("loginErr").textContent = "That repo is public - this dashboard only connects to a private repo."; return; }
     store.set("jsd.repo",cfg.repo); store.set("jsd.branch",cfg.branch); store.set("jsd.token",cfg.token);
     showApp(); await loadAll();
-  }catch(e){ $("loginErr").textContent = e.status===401 ? "Token rejected." : e.status===404 ? "Repo not found for this token - check repository access." : (e.detail||e.message); }
+  }catch(e){ $("loginErr").textContent = e.status===401 ? "Token rejected by GitHub (invalid, deleted or only partly pasted). Generate a new one and paste it with the copy button." : e.status===404 ? "Repo not found for this token - check repository access." : (e.detail||e.message); }
   finally{ $("connectBtn").disabled = false; }
 }
 
